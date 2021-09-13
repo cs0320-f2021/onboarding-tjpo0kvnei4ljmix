@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Locale;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
@@ -60,7 +61,8 @@ public final class Main {
       runSparkServer((int) options.valueOf("port"));
     }
 
-    MathBot mb = new MathBot(); //Create mathbot for adding and subtracting
+    MathBot mb = new MathBot(); //Create MathBot for adding and subtracting
+    StarFinder sf; //Don't initialize yet, since we have no CSV
     try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
       String input;
       while ((input = br.readLine()) != null) {
@@ -68,48 +70,59 @@ public final class Main {
           input = input.trim();
           String[] arguments = input.split(" ");
 
-          if (arguments[0].equalsIgnoreCase("add")
-              || arguments[0].equalsIgnoreCase("subtract")) {
-            //test if there are exactly three arguments
-            int numArguments = arguments.length;
-            if (numArguments > 3) {
-              System.out.println("ERROR: Cannot add more than two numbers");
-            } else if (numArguments < 3) {
-              System.out.println("ERROR: Please provide at least two numbers to add");
-            } else {
-              //Now, make sure that the other two arguments are actually numbers
-              double num1;
-              double num2;
-              try {
-                num1 = Double.parseDouble(arguments[1]);
-              } catch (Exception e) {
-                System.out.println("ERROR: Unable to convert '" + arguments[1] + "' to a number");
-                continue;
-              }
-              try {
-                num2 = Double.parseDouble(arguments[2]);
-              } catch (Exception e) {
-                System.out.println("ERROR: Unable to convert '" + arguments[2] + "' to a number");
-                continue;
-              }
-              //Note: If there were more than two arguments, I'd put them in a loop or something.
-              //Finally, after ensuring that both arguments are doubles, we can add/subtract them
-              double result;
-              if (arguments[0].equalsIgnoreCase("add")) {
-                result = mb.add(num1, num2);
-              } else if (arguments[0].equalsIgnoreCase("subtract")) {
-                result = mb.subtract(num1, num2);
+          switch (arguments[0].toLowerCase()) {
+            case "add":
+            case "subtract":
+              //test if there are exactly three arguments
+              int numArguments = arguments.length;
+              if (numArguments > 3) {
+                System.out.println("ERROR: Cannot add more than two numbers");
+              } else if (numArguments < 3) {
+                System.out.println("ERROR: Please provide at least two numbers to add");
               } else {
-                //This should literally never happen, since arguments[0] was as one of these
-                System.out.println("Congratulations, you broke logic");
-                throw new Exception("Reached unreachable case, arguments[0] is not a command.");
+                //Now, make sure that the other two arguments are actually numbers
+                double num1, num2;
+                try {
+                  num1 = Double.parseDouble(arguments[1]);
+                } catch (Exception e) {
+                  System.out.println("ERROR: Unable to convert '" + arguments[1] + "' to a number");
+                  continue;
+                }
+                try {
+                  num2 = Double.parseDouble(arguments[2]);
+                } catch (Exception e) {
+                  System.out.println("ERROR: Unable to convert '" + arguments[2] + "' to a number");
+                  continue;
+                }
+                //Note: If there were more than two numbers to add/subtract, I'd put them in a loop
+                //Finally, after ensuring that both arguments are doubles, we can add/subtract them
+                double result;
+                if (arguments[0].equalsIgnoreCase("add")) {
+                  result = mb.add(num1, num2);
+                } else if (arguments[0].equalsIgnoreCase("subtract")) {
+                  result = mb.subtract(num1, num2);
+                } else {
+                  //This should literally never happen, since arguments[0] was as one of these
+                  System.out.println("Congratulations, you broke logic");
+                  throw new Exception("Reached unreachable case, arguments[0] is not a command.");
+                }
+                System.out.println(result); //Print the result
               }
-
-              System.out.println(result); //Print the result
-            }
-
-          } else {
-            System.out.println(arguments[0]); //Default case is to print back the first word
+              break; //end of add/subtract case
+            case "stars":
+              //Test if there is a CSV argument (and no other arguments)
+              if (arguments.length != 2) {
+                System.out.println(
+                    "ERROR: Please provide your input in the format 'stars <CSV File>'");
+              }
+              System.out.println("Not Implemented Yet");
+              break; //end of stars case
+            case "naive_neighbors":
+              System.out.println("Not Implemented Yet");
+              break; //end of naive_neighbors case
+            default:
+              System.out.println(arguments[0]); //default behavior is to print the first word
+              break; //end default case
           }
         } catch (Exception e) {
           // e.printStackTrace();

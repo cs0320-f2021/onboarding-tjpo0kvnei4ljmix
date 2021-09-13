@@ -5,7 +5,7 @@ public class StarFinder {
    * Default constructor.
    */
   public StarFinder(/* Constructor should take a list of stars*/) {
-
+    
   }
 
 
