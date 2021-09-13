@@ -60,16 +60,57 @@ public final class Main {
       runSparkServer((int) options.valueOf("port"));
     }
 
-    // TODO: Add your REPL here!
+    MathBot mb = new MathBot(); //Create mathbot for adding and subtracting
     try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
       String input;
       while ((input = br.readLine()) != null) {
         try {
           input = input.trim();
           String[] arguments = input.split(" ");
-          System.out.println(arguments[0]);
-          // TODO: complete your REPL by adding commands for addition "add" and subtraction
-          //  "subtract"
+
+          if (arguments[0].equalsIgnoreCase("add")
+              || arguments[0].equalsIgnoreCase("subtract")) {
+            //test if there are exactly three arguments
+            int numArguments = arguments.length;
+            if (numArguments > 3) {
+              System.out.println("ERROR: Cannot add more than two numbers");
+            } else if (numArguments < 3) {
+              System.out.println("ERROR: Please provide at least two numbers to add");
+            } else {
+              //Now, make sure that the other two arguments are actually numbers
+              double num1;
+              double num2;
+              try {
+                num1 = Double.parseDouble(arguments[1]);
+              } catch (Exception e) {
+                System.out.println("ERROR: Unable to convert '" + arguments[1] + "' to a number");
+                continue;
+              }
+              try {
+                num2 = Double.parseDouble(arguments[2]);
+              } catch (Exception e) {
+                System.out.println("ERROR: Unable to convert '" + arguments[2] + "' to a number");
+                continue;
+              }
+              //Note: If there were more than two arguments, I'd put them in a loop or something.
+              //Finally, after ensuring that both arguments are doubles, we can add/subtract them
+              double result;
+              if (arguments[0].equalsIgnoreCase("add")) {
+                result = mb.add(num1, num2);
+              } else if (arguments[0].equalsIgnoreCase("subtract")) {
+                result = mb.subtract(num1, num2);
+              } else {
+                //This should literally never happen, since arguments[0] was as one of these
+                System.out.println("Congratulations, you broke logic");
+                throw new Exception("Reached unreachable case, arguments[0] is not a command.");
+              }
+
+              System.out.println(result); //Print the result
+            }
+
+          } else {
+            System.out.println(arguments[0]); //Default case is to print back the first word
+          }
         } catch (Exception e) {
           // e.printStackTrace();
           System.out.println("ERROR: We couldn't process your input");
