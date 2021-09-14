@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 
 public class StarFinder {
   private boolean invalid = true; //true until stars are loaded
@@ -15,6 +14,10 @@ public class StarFinder {
    */
   public StarFinder() {
 
+  }
+
+  public boolean isInvalid() {
+    return this.invalid;
   }
 
   /**
@@ -65,7 +68,7 @@ public class StarFinder {
       String properName = rawStarData[1];
       starData.add(new Star(id, properName, x, y, z));
     }
-    System.out.println("Succesfully imported " + starData.size() + " stars!");
+    System.out.println("Read " + this.starData.size() + " stars from " + path);
     //System.out.println("The first star is named " + starData.get(0).getName());
   }
 
@@ -99,19 +102,12 @@ public class StarFinder {
       s.setDist(dist);
     }
     //Now, all the stars have distances. Sort by distance.
-    sortedStarData.sort(new Comparator<Star>() {
-      @Override
-      public int compare(Star o1, Star o2) {
-        try {
-          return (int) Math.floor(o1.getDist() - o2.getDist()); //Math.floor because must return int
-        } catch (Exception e) {
-          //This should never happen, since we just set the distances for all stars
-          System.out.println("ERROR: Sorting error "
-              + "The programmer of this app messed up, ask for a refund.");
-          return 0; //probably bad practice, but this should never happen anyways.
-        }
-      }
+    sortedStarData.sort((o1, o2) -> {
+      return (int) Math.floor(o1.getDist() - o2.getDist()); //Math.floor because must return int
     });
+
+    //TODO: Functionality for ties
+
     return new ArrayList<Star>(sortedStarData.subList(0, k));
   }
 

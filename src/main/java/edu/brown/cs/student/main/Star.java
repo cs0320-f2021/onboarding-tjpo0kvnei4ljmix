@@ -45,9 +45,10 @@ public class Star {
     return this.name;
   }
 
-  public double getDist() throws Exception {
+  public double getDist(){
     if (this.dist == -1) {
-      throw new Exception("Star distance was accessed before being set!");
+      //Distance was never set, send out a warning!
+      System.out.println("ERROR: Distance on star " + this.name + " is not set!");
     }
     return this.dist;
   }
