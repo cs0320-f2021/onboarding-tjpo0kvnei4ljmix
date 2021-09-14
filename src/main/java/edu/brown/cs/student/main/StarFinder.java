@@ -4,18 +4,28 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Comparator;
 
 public class StarFinder {
-  private boolean invalid = false; //false until proven otherwise
+  private boolean invalid = true; //true until stars are loaded
   private ArrayList<Star> starData;
-  private String starName;
 
   /**
    * Constructor for the StarFinder class.
-   * @param path The path for the CSV to import
    */
-  public StarFinder(String path) throws IOException {
+  public StarFinder() {
+
+  }
+
+  /**
+   * Loads CSV file into StarFinder.
+   *
+   * @param path path to CSV file
+   * @throws IOException
+   */
+
+  public void loadStars(String path) throws IOException {
+    this.invalid = false; //valid until proven otherwise by a CSV read error
     BufferedReader starReader;
     try {
       starReader = new BufferedReader(new FileReader(path));
@@ -40,12 +50,13 @@ public class StarFinder {
         return;
       }
       //Convert id and x/y/z int
-      int id, x, y, z = 0;
+      int id;
+      double x, y, z;
       try {
         id = Integer.parseInt(rawStarData[0]);
-        x = Integer.parseInt(rawStarData[2]);
-        y = Integer.parseInt(rawStarData[3]);
-        z = Integer.parseInt(rawStarData[4]);
+        x = Double.parseDouble(rawStarData[2]);
+        y = Double.parseDouble(rawStarData[3]);
+        z = Double.parseDouble(rawStarData[4]);
       } catch (Exception e) {
         System.out.println("ERROR: Could not parse CSV - Check for corruption");
         this.invalid = true;
@@ -54,11 +65,8 @@ public class StarFinder {
       String properName = rawStarData[1];
       starData.add(new Star(id, properName, x, y, z));
     }
-
-    //debug
     System.out.println("Succesfully imported " + starData.size() + " stars!");
-    System.out.println("The first star is named " + starData.get(0).name);
-
+    //System.out.println("The first star is named " + starData.get(0).getName());
   }
 
   /**
@@ -72,9 +80,39 @@ public class StarFinder {
    * If there is a tie, picks randomly between the stars that are tied.
    *
    */
-  public ArrayList<Star> knn(int k, int x, int y, int z) {
-    //ArrayList<Pair<Integer, Star>> sortedStars = new ArrayList<Pair<int, Star>>();
-    return this.starData;
+  public ArrayList<Star> knn(int k, double x, double y, double z) {
+    if (this.invalid) {
+      System.out.println("ERROR: Star CSV has not been loaded or is invalid");
+      return new ArrayList<Star>();
+    }
+    if (k > starData.size()) {
+      //Searching for too many stars
+      System.out.println("ERROR: Number of stars requested is more than number available");
+    }
+    //Make a copy of the starData, fill in distances, then sort by distance.
+    ArrayList<Star> sortedStarData = new ArrayList<Star>(this.starData);
+    for (Star s : sortedStarData) {
+      double dist = Math.pow(Math.abs(x - s.getX()), 2)
+          + Math.pow(Math.abs(y - s.getY()), 2)
+          + Math.pow(Math.abs(z - s.getZ()), 2);
+      //No need to square-root and find the 'true' distance, sorting will still work the same.
+      s.setDist(dist);
+    }
+    //Now, all the stars have distances. Sort by distance.
+    sortedStarData.sort(new Comparator<Star>() {
+      @Override
+      public int compare(Star o1, Star o2) {
+        try {
+          return (int) Math.floor(o1.getDist() - o2.getDist()); //Math.floor because must return int
+        } catch (Exception e) {
+          //This should never happen, since we just set the distances for all stars
+          System.out.println("ERROR: Sorting error "
+              + "The programmer of this app messed up, ask for a refund.");
+          return 0; //probably bad practice, but this should never happen anyways.
+        }
+      }
+    });
+    return new ArrayList<Star>(sortedStarData.subList(0, k));
   }
 
   /**
@@ -84,18 +122,19 @@ public class StarFinder {
    * @return Arraylist of the k closest stars, sorted from closest to furthest
    */
   public ArrayList<Star> namedKnn(int k, String name) {
+    if (this.invalid) {
+      System.out.println("ERROR: Star CSV has not been loaded or is invalid");
+      return new ArrayList<Star>();
+    }
     //Find the x/y/z coordinates of the star with starName, then pass that info to knn
-    //lightly inspired by https://www.geeksforgeeks.org/arraylist-iterator-method-in-java-with-examples/
-    Iterator<Star> iter = this.starData.iterator();
-    Star tmp;
-    while (iter.hasNext()) {
-      tmp = iter.next();
-      if (tmp.name.equals(name)) {
+
+    for (Star s : this.starData) {
+      if (s.getName().equals(name)) {
         //Found it!
-        return this.knn(k, tmp.x, tmp.y, tmp.z);
+        return this.knn(k, s.getX(), s.getY(), s.getZ());
       }
     }
-    //If we exit the while loop without returning, this means none of the stars matched the name
+    //If we exit the loop without returning, this means none of the stars matched the name
     System.out.println("ERROR: Name did not match any known star");
     return new ArrayList<Star>();
   }

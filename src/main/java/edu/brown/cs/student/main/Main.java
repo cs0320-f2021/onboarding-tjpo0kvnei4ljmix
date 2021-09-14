@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
@@ -61,7 +62,7 @@ public final class Main {
     }
 
     MathBot mb = new MathBot(); //Create MathBot for adding and subtracting
-    StarFinder sf; //Don't initialize yet, since we have no CSV
+    StarFinder sf = new StarFinder();
     try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
       String input;
       while ((input = br.readLine()) != null) {
@@ -115,17 +116,49 @@ public final class Main {
                     "ERROR: Please provide your input in the format 'stars <CSV File>'");
                 break;
               }
-              sf = new StarFinder(arguments[1]);
+              sf.loadStars(arguments[1]);
               break; //end of stars case
             case "naive_neighbors":
-              System.out.println("Not Implemented Yet");
+              if (input.split("\"").length > 1) {
+                //likely formatted as 'naive_neighbors <k> <"name">'
+                int k;
+                String name;
+                try {
+                  k = Integer.parseInt(arguments[1]);
+                  name = input.split("\"")[1];
+                } catch (Exception e) {
+                  System.out.println("ERROR: Unable to parse input. Make sure the star name "
+                      + "is in quotes, and that 'k' is a number.");
+                  break;
+                }
+                this.printStarResults(sf.namedKnn(k, name));
+              } else if (arguments.length == 5) {
+                int k;
+                double x, y, z;
+                //formatted as 'naive_neighbors <k> <x> <y> <z>'
+                try {
+                  k = Integer.parseInt(arguments[1]);
+                  x = Double.parseDouble(arguments[2]);
+                  y = Double.parseDouble(arguments[3]);
+                  z = Double.parseDouble(arguments[4]);
+                } catch (Exception e) {
+                  System.out.println("ERROR: Unable to parse input.");
+                  break;
+                }
+                this.printStarResults(sf.knn(k, x, y, z));
+              } else {
+                //formatted wrong
+                System.out.println("ERROR: Please follow one of the following formats:");
+                System.out.println("-> 'naive_neighbors <k> <x> <y> <z>'");
+                System.out.println("-> 'naive_neighbors <k> <\"name\">'");
+              }
               break; //end of naive_neighbors case
             default:
               System.out.println(arguments[0]); //default behavior is to print the first word
               break; //end default case
           }
         } catch (Exception e) {
-          // e.printStackTrace();
+          e.printStackTrace();
           System.out.println("ERROR: We couldn't process your input");
         }
       }
@@ -149,6 +182,20 @@ public final class Main {
       System.exit(1);
     }
     return new FreeMarkerEngine(config);
+  }
+
+  private void printStarResults(ArrayList<Star> stars) {
+    if (stars.size() == 0) {
+      //This is the return when an error occurs in the knn function
+      //Stay silent, an error message has already been printed from knn
+      return;
+    }
+    System.out.println("Closest stars to selected center:");
+    for (Star s : stars) {
+      System.out.println(s.getName() + " at x: " + s.getX() + ", Y: " + s.getY()
+          + ", Z: " + s.getZ());
+          //+ " With a distance of: " + s.getDist()); excluded because dist is not square-rooted
+    }
   }
 
   private void runSparkServer(int port) {
