@@ -51,4 +51,10 @@ public class StarTest {
       //do this three times, to make sure data is persistent.
     }
   }
+
+  @Test
+  public void testDistUninitialized() {
+    Star s = new Star(1, "test", 2, 3, 4);
+    assertEquals(-1, s.getDist(), 0);
+  }
 }
