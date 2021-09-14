@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Locale;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
@@ -116,7 +115,6 @@ public final class Main {
                     "ERROR: Please provide your input in the format 'stars <CSV File>'");
                 break;
               }
-              //TODO: Sanitize this input to make sure the path exists
               sf = new StarFinder(arguments[1]);
               break; //end of stars case
             case "naive_neighbors":

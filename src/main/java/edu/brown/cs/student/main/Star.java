@@ -2,11 +2,12 @@ package edu.brown.cs.student.main;
 
 public class Star {
 
-  public int id;
-  public String name;
-  public int x;
-  public int y;
-  public int z;
+  public final int id;
+  public final String name;
+  public final int x;
+  public final int y;
+  public final int z;
+  private int dist = -1;
 
   /**
    * Constructor for the Star class, which simply holds all info about a star.
@@ -22,6 +23,17 @@ public class Star {
     this.x = x;
     this.y = y;
     this.z = z;
+  }
+
+  public int getDist() throws Exception {
+    if (this.dist == -1) {
+      throw new Exception("Star distance was accessed before being set!");
+    }
+    return this.dist;
+  }
+
+  public void setDist(int d) {
+    this.dist = d;
   }
 
 }
