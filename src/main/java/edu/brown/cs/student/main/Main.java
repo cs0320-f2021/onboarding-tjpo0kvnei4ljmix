@@ -114,8 +114,10 @@ public final class Main {
               if (arguments.length != 2) {
                 System.out.println(
                     "ERROR: Please provide your input in the format 'stars <CSV File>'");
+                break;
               }
-              System.out.println("Not Implemented Yet");
+              //TODO: Sanitize this input to make sure the path exists
+              sf = new StarFinder(arguments[1]);
               break; //end of stars case
             case "naive_neighbors":
               System.out.println("Not Implemented Yet");
