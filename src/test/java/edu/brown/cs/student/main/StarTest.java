@@ -1,7 +1,6 @@
 package edu.brown.cs.student.main;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 
 import org.junit.Test;
 
@@ -60,9 +59,4 @@ public class StarTest {
     assertEquals(-1, s.getDist(), 0);
   }
 
-  @Test
-  public void testNegativeDistance() {
-    Star s = new Star(9, "Nine", 9, 9, 9);
-    assertThrows(Exception.class, () -> s.setDist(-123));
-  }
 }
