@@ -46,14 +46,10 @@ public class Star {
   }
 
   public double getDist(){
-    if (this.dist == -1) {
-      //Distance was never set, send out a warning!
-      System.out.println("ERROR: Distance on star " + this.name + " is not set!");
-    }
     return this.dist;
   }
 
-  public void setDist(double d) {
+  public void setDist(double d){
     this.dist = d;
   }
 
