@@ -27,17 +27,18 @@ public class StarFinder {
    * @throws IOException
    */
 
-  public void loadStars(String path) throws IOException {
+  public void loadStars(String path) {
     this.invalid = false; //valid until proven otherwise by a CSV read error
     BufferedReader starReader;
+    String line;
     try {
       starReader = new BufferedReader(new FileReader(path));
+      line = starReader.readLine();
     } catch (Exception e) {
       System.out.println("ERROR: Could not find the file specified. Check for spelling errors.");
       this.invalid = true;
       return;
     }
-    String line = starReader.readLine();
     if (!(line.equals("StarID,ProperName,X,Y,Z"))) {
       //First line of the CSV is in the wrong format, notify the user and mark CSV as invalid.
       System.out.println("ERROR: Invalid CSV, make sure the CSV formatting is correct.");
@@ -45,7 +46,14 @@ public class StarFinder {
       return;
     }
     starData = new ArrayList<Star>();
-    while ((line = starReader.readLine()) != null) {
+    while (true) {
+      try {
+        if (!((line = starReader.readLine()) != null)) {
+          break;
+        }
+      } catch (IOException e) {
+        System.out.println("ERROR: There was an issue reading the file, check for corruption");
+      }
       String[] rawStarData = line.split(",");
       if (rawStarData.length != 5) {
         System.out.println("ERROR: The CSV has an incorrect number of fields and/or is broken!");
@@ -91,6 +99,7 @@ public class StarFinder {
     if (k > starData.size()) {
       //Searching for too many stars
       System.out.println("ERROR: Number of stars requested is more than number available");
+      return new ArrayList<Star>();
     }
     //Make a copy of the starData, fill in distances, then sort by distance.
     ArrayList<Star> sortedStarData = new ArrayList<Star>(this.starData);
