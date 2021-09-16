@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class StarFinder {
   private boolean invalid = true; //true until stars are loaded
@@ -48,7 +49,8 @@ public class StarFinder {
     starData = new ArrayList<Star>();
     while (true) {
       try {
-        if (!((line = starReader.readLine()) != null)) {
+        line = starReader.readLine();
+        if (line == null) {
           break;
         }
       } catch (IOException e) {
@@ -91,6 +93,7 @@ public class StarFinder {
    * If there is a tie, picks randomly between the stars that are tied.
    *
    */
+  @SuppressWarnings({"checkstyle:LocalFinalVariableName", "checkstyle:MagicNumber"})
   public ArrayList<Star> knn(int k, double x, double y, double z) {
     if (this.invalid) {
       System.out.println("ERROR: Star CSV has not been loaded or is invalid");
@@ -104,9 +107,9 @@ public class StarFinder {
     //Make a copy of the starData, fill in distances, then sort by distance.
     ArrayList<Star> sortedStarData = new ArrayList<Star>(this.starData);
     for (Star s : sortedStarData) {
-      double dist = Math.pow(Math.abs(x - s.getX()), 2)
-          + Math.pow(Math.abs(y - s.getY()), 2)
-          + Math.pow(Math.abs(z - s.getZ()), 2);
+      double dist = Math.pow(x - s.getX(), 2)
+          + Math.pow(y - s.getY(), 2)
+          + Math.pow(z - s.getZ(), 2);
       //No need to square-root and find the 'true' distance, sorting will still work the same.
       s.setDist(dist);
     }
@@ -115,9 +118,38 @@ public class StarFinder {
       return (int) Math.floor(o1.getDist() - o2.getDist()); //Math.floor because must return int
     });
 
-    //TODO: Functionality for ties
+    ArrayList<Star> results = new ArrayList<>(sortedStarData.subList(0, k));
 
-    return new ArrayList<Star>(sortedStarData.subList(0, k));
+    //Test for ties, and randomize the returned results.
+    if (results.size() < 2 || results.size() == sortedStarData.size()) {
+      //can't have a tie with less than 2 elements, can't have a tie if everything is returned
+      return results;
+    }
+    double cutoffDist = results.get(results.size() - 1).getDist(); //distance of last star
+    assert results.get(results.size() - 1) == sortedStarData.get(k - 1); //should be identical
+    if (sortedStarData.get(k - 1).getDist() == sortedStarData.get(k).getDist()) {
+      //we have a tie, because last elem of results has same distance as an excluded element (idx k)
+      int firstIdx = -1;
+      int lastIdx = -1;
+      for (int i = 0; i < sortedStarData.size(); i++) {
+        if (firstIdx == -1 && sortedStarData.get(i).getDist() == cutoffDist) {
+          //This is the first index where things are tied
+          firstIdx = i;
+        }
+        if (sortedStarData.get(i).getDist() > cutoffDist) {
+          //This is greater than the cuttoff distance
+          //therefore the previous element was the last tied element
+          lastIdx = i; //setting to i (not i - 1) because subList doesn't include the bound
+          break;
+        }
+      }
+      results = new ArrayList<>(sortedStarData.subList(0, firstIdx));
+      ArrayList<Star> randomizedTies = new ArrayList<>(sortedStarData.subList(firstIdx, lastIdx));
+      Collections.shuffle(randomizedTies);
+      results.addAll(randomizedTies.subList(0, k - results.size()));
+      assert results.size() == k;
+    }
+    return results;
   }
 
   /**
