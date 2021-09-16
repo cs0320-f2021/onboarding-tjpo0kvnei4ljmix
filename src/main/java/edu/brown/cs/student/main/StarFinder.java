@@ -166,7 +166,7 @@ public class StarFinder {
       return new ArrayList<>();
     }
     if (name.isEmpty()) {
-      System.out.println("Star name cannot be empty");
+      System.out.println("ERROR: Star name cannot be empty");
       return new ArrayList<>();
     }
     //Find the x/y/z coordinates of the star with starName, then pass that info to knn
