@@ -1,0 +1,7 @@
+INPUT
+stars src/test/java/edu/brown/cs/student/main/corrupt-body.csv
+naive_neighbors 5 12.5 34.45654 1234b
+OUTPUT
+ERROR:
+ERROR:
+END

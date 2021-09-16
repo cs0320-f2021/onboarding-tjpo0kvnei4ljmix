@@ -1,7 +1,11 @@
 INPUT
 stars data/stars/ten-star.csv
 naive_neighbors 5" StarnameHere"
+naive_neighbors 5 "" "
+naive_neighbors 5 "" ""
 OUTPUT
 Read 10 stars from data/stars/ten-star.csv
+ERROR:
+ERROR:
 ERROR:
 END
