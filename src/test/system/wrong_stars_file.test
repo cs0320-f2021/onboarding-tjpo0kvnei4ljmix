@@ -1,0 +1,7 @@
+INPUT
+stars data/stars/fake-file.csv
+naive_neighbors 1 "Lonely Star"
+OUTPUT
+ERROR:
+ERROR:
+END
