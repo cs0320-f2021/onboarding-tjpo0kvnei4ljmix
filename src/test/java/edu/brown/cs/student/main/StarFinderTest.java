@@ -2,20 +2,43 @@ package edu.brown.cs.student.main;
 
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class StarFinderTest {
 
   StarFinder gsf = new StarFinder(); // global starfinder used in some tests, tests reloading data
+
+  /**
+   * @param l1 first list to compare
+   * @param l2 second list to compare
+   * @return true if both arraylists contain the same stars in the same order, false otherwise
+   */
+
+  public boolean starsEqual(ArrayList<Star> l1, ArrayList<Star> l2) {
+    if (l1.size() != l2.size()) {
+      return false;
+    }
+    for (int i = 0; i < l2.size(); i++) {
+      Star s1 = l1.get(i);
+      Star s2 = l2.get(i);
+      if (!(s1.getName().equals(s2.getName())
+          && s1.getId() == s2.getId()
+          && s1.getX() == s2.getX()
+          && s1.getY() == s2.getY()
+          && s1.getZ() == s2.getZ())) {
+        //If any of these are false, then l1 and l2 do not contain the same stars
+        return false;
+      }
+    }
+    //getting here means we checked all the stars, none returned false
+    return true;
+  }
 
   @Test
   public void testInstantiation() {
@@ -67,7 +90,7 @@ public class StarFinderTest {
   //knn tests
 
   @Test
-  public void knnCore() {
+  public void testKnnCore() {
     //Core functionality of knn
     StarFinder sf = new StarFinder();
     sf.loadStars("data/stars/ten-star.csv");
@@ -83,12 +106,7 @@ public class StarFinderTest {
     correct.add(new Star(2,"",43.04329,0.00285,-15.24144));
     correct.add(new Star(1,"",282.43485,0.00449,5.36884));
     correct.add(new Star(3,"",277.11358,0.02422,223.27753));
-    for(int i = 0; i < result.size(); i++) {
-      assertEquals(result.get(i).getX(), correct.get(i).getX(), 0);
-      assertEquals(result.get(i).getY(), correct.get(i).getY(), 0);
-      assertEquals(result.get(i).getZ(), correct.get(i).getZ(), 0);
-      //Don't feel like writing a .equals, and if X/Y/Z are equal it's going to be the same star
-    }
+    assertTrue(starsEqual(result, correct));
   }
 
   @Test
@@ -97,16 +115,16 @@ public class StarFinderTest {
     StarFinder sf = new StarFinder();
     sf.loadStars("data/stars/ten-star.csv");
     ArrayList<Star> result = sf.knn(11, 0,0, 0);
-    assertTrue(result.size() == 0);
+    assertEquals(0, result.size());
     assertFalse(sf.isInvalid()); //results are not invalidated by bad knn query
   }
 
   @Test
-  public void testInvalidData() {
+  public void testKnnInvalidData() {
     //try calling knn before loading data
     StarFinder sf = new StarFinder();
     ArrayList<Star> result = sf.knn(3, 1, 2, 3);
-    assertTrue(result.size() == 0);
+    assertEquals(0, result.size());
   }
 
   @Test
@@ -114,7 +132,7 @@ public class StarFinderTest {
     //try calling knn after loading bad data
     gsf.loadStars("src/test/java/edu/brown/cs/student/main/corrupt-body.csv");
     ArrayList<Star> result = gsf.knn(3, 1, 2, 3);
-    assertTrue(result.size() == 0);
+    assertEquals(0, result.size());
   }
 
   @Test
@@ -125,12 +143,7 @@ public class StarFinderTest {
     correct.add(new Star(1,"",282.43485,0.00449,5.36884));
     correct.add(new Star(2,"",43.04329,0.00285,-15.24144));
     correct.add(new Star(3759,"96 G. Psc",7.26388,1.55643,0.68697));
-    for(int i = 0; i < result.size(); i++) {
-      assertEquals(result.get(i).getX(), correct.get(i).getX(), 0);
-      assertEquals(result.get(i).getY(), correct.get(i).getY(), 0);
-      assertEquals(result.get(i).getZ(), correct.get(i).getZ(), 0);
-      //Don't feel like writing a .equals, and if X/Y/Z are equal it's going to be the same star
-    }
+    assertTrue(starsEqual(result, correct));
   }
 
   @Test
@@ -142,13 +155,7 @@ public class StarFinderTest {
     correct.add(new Star(0, "Sol", 0, 0, 0));
     correct.add(new Star(70667,"Proxima Centauri",-0.47175,-0.36132,-1.15037));
     correct.add(new Star(71454,"Rigel Kentaurus B",-0.50359,-0.42128,-1.1767));
-    for(int i = 0; i < result.size(); i++) {
-      assertEquals(result.get(i).getX(), correct.get(i).getX(), 0);
-      assertEquals(result.get(i).getY(), correct.get(i).getY(), 0);
-      assertEquals(result.get(i).getZ(), correct.get(i).getZ(), 0);
-      //Don't feel like writing a .equals, and if X/Y/Z are equal it's going to be the same star
-      //I know this is copy/pasted from above. If I was smarter, I would've written a function.
-    }
+    assertTrue(starsEqual(result, correct));
 
   }
 
@@ -156,14 +163,14 @@ public class StarFinderTest {
   public void testZeroK() {
     gsf.loadStars("data/stars/ten-star.csv");
     ArrayList<Star> result = gsf.knn(0, 0,0, 0);
-    assertTrue(result.size() == 0);
+    assertEquals(0, result.size());
   }
 
   @Test
   public void testNegativeID() {
     gsf.loadStars("src/test/java/edu/brown/cs/student/main/negative-id.csv");
     ArrayList<Star> result = gsf.knn(10, 123, 456, 789);
-    assertTrue(result.size() == 10);
+    assertEquals(10, result.size());
     for (Star s : result) {
       assertTrue(s.getId() < 0);
     }
@@ -173,11 +180,11 @@ public class StarFinderTest {
   public void testTies() {
     gsf.loadStars("src/test/java/edu/brown/cs/student/main/tied-stars.csv");
     ArrayList<Star> result = gsf.knn(7, 50, -50, 50);
-    assertTrue(result.size() == 7);
+    assertEquals(7, result.size());
     //Test stars which are always in the same place
-    assertTrue(result.get(0).getId() == 1);
-    assertTrue(result.get(1).getId() == 0);
-    assertTrue(result.get(6).getId() == 999);
+    assertEquals(1, result.get(0).getId());
+    assertEquals(0, result.get(1).getId());
+    assertEquals(999, result.get(6).getId());
     ArrayList<Integer> tiedIDs = new ArrayList<>(Arrays.asList(3, 8, 99, 238));
     for (int i = 0; i < 1000; i++) {
       result = gsf.knn(3, 50, -50, 50);
@@ -195,7 +202,57 @@ public class StarFinderTest {
     }
   }
 
-  //TODO: Test named_knn
+  //namedKnn tests
 
+  @Test
+  public void testNamedKnnCore() {
+    StarFinder sf = new StarFinder();
+    sf.loadStars("data/stars/stardata.csv");
+    ArrayList<Star> stars = new ArrayList<>();
+    stars.add(new Star(58708,"Noreen_8",-716.19999,-14.46457,573.17391));
+    stars.add(new Star(12,"Kaleigh",199.36567,0.14237,-144.63632));
+    stars.add(new Star(115,"Marchello",96.23159,0.6258,-188.24457));
+    stars.add(new Star(119604,"Jakobe_17",19.18416,-0.49694,-17.00538));
+    stars.add(new Star(65648,"Anneliese_9",-175.81072,-72.76531,130.89025));
+    stars.add(new Star(3,"Mortimer",277.11358,0.02422,223.27753));
+    stars.add(new Star(524,"Candyce",87.85805,2.42944,76.13068));
+    for (Star s : stars) {
+      ArrayList<Star> namedResult = sf.namedKnn(100, s.getName());
+      ArrayList<Star> coodinateResult = sf.knn(100, s.getX(), s.getY(), s.getZ());
+      assertTrue(starsEqual(namedResult, coodinateResult));
+    }
+  }
+
+  @Test
+  public void testSpaces() {
+    gsf.loadStars("data/stars/ten-star.csv");
+    assertTrue(starsEqual(gsf.knn(8, -0.50359,-0.42128,-1.1767),
+                          gsf.namedKnn(8, "Rigel Kentaurus B")));
+  }
+
+  @Test
+  public void testBlank() {
+    gsf.loadStars("data/stars/ten-star.csv");
+    assertEquals(0, gsf.namedKnn(4, "").size());
+  }
+
+  @Test
+  public void testBadName() {
+    gsf.loadStars("data/stars/ten-star.csv");
+    assertEquals(0, gsf.namedKnn(4, "MadeupName").size());
+  }
+
+  @Test
+  public void testNamedKnnInvalidData() {
+    gsf.loadStars("src/test/java/edu/brown/cs/student/main/corrupt-body.csv");
+    assertEquals(0, gsf.namedKnn(4, "Sol").size());
+  }
+
+  @Test
+  public void testCaseSensitive() {
+    gsf.loadStars("data/stars/stardata.csv");
+    assertEquals(123, gsf.namedKnn(123, "Rhona").size());
+    assertEquals(0, gsf.namedKnn(123, "rHoNA").size());
+  }
 
 }

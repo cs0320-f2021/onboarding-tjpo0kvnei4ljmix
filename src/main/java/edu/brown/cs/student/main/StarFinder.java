@@ -163,6 +163,11 @@ public class StarFinder {
       System.out.println("ERROR: Star CSV has not been loaded or is invalid");
       return new ArrayList<Star>();
     }
+    if (name.isEmpty()) {
+      System.out.println("Star name cannot be empty");
+      return new ArrayList<Star>();
+    }
+
     //Find the x/y/z coordinates of the star with starName, then pass that info to knn
 
     for (Star s : this.starData) {
