@@ -144,9 +144,9 @@ public final class Main {
                 this.printStarResults(sf.knn(k, x, y, z));
               } else {
                 //formatted wrong
-                System.out.println("ERROR: Please follow one of the following formats:");
-                System.out.println("-> 'naive_neighbors <k> <x> <y> <z>'");
-                System.out.println("-> 'naive_neighbors <k> <\"name\">'");
+                System.out.print("ERROR: Please follow one of the following formats:");
+                System.out.print(" 'naive_neighbors <k> <x> <y> <z>'");
+                System.out.println(" OR 'naive_neighbors <k> <\"name\">'");
               }
               break; //end of naive_neighbors case
             default:
