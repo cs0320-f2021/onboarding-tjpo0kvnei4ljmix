@@ -115,7 +115,7 @@ public class StarFinderTest {
     StarFinder sf = new StarFinder();
     sf.loadStars("data/stars/ten-star.csv");
     ArrayList<Star> result = sf.knn(11, 0,0, 0);
-    assertEquals(0, result.size());
+    assertEquals(10, result.size()); //size is reduced to max available
     assertFalse(sf.isInvalid()); //results are not invalidated by bad knn query
   }
 
@@ -218,7 +218,8 @@ public class StarFinderTest {
     stars.add(new Star(524,"Candyce",87.85805,2.42944,76.13068));
     for (Star s : stars) {
       ArrayList<Star> namedResult = sf.namedKnn(100, s.getName());
-      ArrayList<Star> coodinateResult = sf.knn(100, s.getX(), s.getY(), s.getZ());
+      ArrayList<Star> coodinateResult = sf.knn(101, s.getX(), s.getY(), s.getZ());
+      coodinateResult.remove(0); //first result with coords is the central star.
       assertTrue(starsEqual(namedResult, coodinateResult));
     }
   }
@@ -226,8 +227,9 @@ public class StarFinderTest {
   @Test
   public void testSpaces() {
     gsf.loadStars("data/stars/ten-star.csv");
-    assertTrue(starsEqual(gsf.knn(8, -0.50359,-0.42128,-1.1767),
-                          gsf.namedKnn(8, "Rigel Kentaurus B")));
+    ArrayList<Star> coordinateResult = gsf.knn(9, -0.50359,-0.42128,-1.1767);
+    coordinateResult.remove(0);
+    assertTrue(starsEqual(coordinateResult, gsf.namedKnn(8, "Rigel Kentaurus B")));
   }
 
   @Test

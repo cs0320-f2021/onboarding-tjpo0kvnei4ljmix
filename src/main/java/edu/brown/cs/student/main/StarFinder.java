@@ -25,7 +25,6 @@ public class StarFinder {
    * Loads CSV file into StarFinder.
    *
    * @param path path to CSV file
-   * @throws IOException
    */
 
   public void loadStars(String path) {
@@ -46,7 +45,7 @@ public class StarFinder {
       this.invalid = true;
       return;
     }
-    starData = new ArrayList<Star>();
+    starData = new ArrayList<>();
     while (true) {
       try {
         line = starReader.readLine();
@@ -97,15 +96,18 @@ public class StarFinder {
   public ArrayList<Star> knn(int k, double x, double y, double z) {
     if (this.invalid) {
       System.out.println("ERROR: Star CSV has not been loaded or is invalid");
-      return new ArrayList<Star>();
+      return new ArrayList<>();
     }
     if (k > starData.size()) {
       //Searching for too many stars
-      System.out.println("ERROR: Number of stars requested is more than number available");
-      return new ArrayList<Star>();
+      //System.out.println("ERROR: Number of stars requested is more than number available");
+      //return new ArrayList<>();
+
+      //Instead of erroring, just reduce to the maximum size
+      return this.knn(starData.size(), x, y, z);
     }
     //Make a copy of the starData, fill in distances, then sort by distance.
-    ArrayList<Star> sortedStarData = new ArrayList<Star>(this.starData);
+    ArrayList<Star> sortedStarData = new ArrayList<>(this.starData);
     for (Star s : sortedStarData) {
       double dist = Math.pow(x - s.getX(), 2)
           + Math.pow(y - s.getY(), 2)
@@ -161,24 +163,25 @@ public class StarFinder {
   public ArrayList<Star> namedKnn(int k, String name) {
     if (this.invalid) {
       System.out.println("ERROR: Star CSV has not been loaded or is invalid");
-      return new ArrayList<Star>();
+      return new ArrayList<>();
     }
     if (name.isEmpty()) {
       System.out.println("Star name cannot be empty");
-      return new ArrayList<Star>();
+      return new ArrayList<>();
     }
-
     //Find the x/y/z coordinates of the star with starName, then pass that info to knn
 
     for (Star s : this.starData) {
       if (s.getName().equals(name)) {
-        //Found it!
-        return this.knn(k, s.getX(), s.getY(), s.getZ());
+        ArrayList<Star> result = this.knn(k + 1, s.getX(), s.getY(), s.getZ());
+        result.removeIf(str -> (str.getName().equals(name)));
+
+        return result;
       }
     }
     //If we exit the loop without returning, this means none of the stars matched the name
     System.out.println("ERROR: Name did not match any known star");
-    return new ArrayList<Star>();
+    return new ArrayList<>();
   }
 
 

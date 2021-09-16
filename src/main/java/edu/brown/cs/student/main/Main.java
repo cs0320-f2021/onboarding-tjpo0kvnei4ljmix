@@ -99,12 +99,8 @@ public final class Main {
                 double result;
                 if (arguments[0].equalsIgnoreCase("add")) {
                   result = mb.add(num1, num2);
-                } else if (arguments[0].equalsIgnoreCase("subtract")) {
-                  result = mb.subtract(num1, num2);
                 } else {
-                  //This should literally never happen, since arguments[0] was as one of these
-                  System.out.println("Congratulations, you broke logic");
-                  throw new Exception("Reached unreachable case, arguments[0] is not a command.");
+                  result = mb.subtract(num1, num2);
                 }
                 System.out.println(result); //Print the result
               }
@@ -154,7 +150,7 @@ public final class Main {
               }
               break; //end of naive_neighbors case
             default:
-              System.out.println(arguments[0]); //default behavior is to print the first word
+              System.out.println("ERROR: Unrecognized Command");
               break; //end default case
           }
         } catch (Exception e) {
@@ -190,11 +186,11 @@ public final class Main {
       //Stay silent, an error message has already been printed from knn
       return;
     }
-    System.out.println("Closest stars to selected center:");
     for (Star s : stars) {
-      System.out.println(s.getName() + " at x: " + s.getX() + ", Y: " + s.getY()
-          + ", Z: " + s.getZ());
-          //+ " With a distance of: " + s.getDist()); excluded because dist is not square-rooted
+      System.out.print(s.getId());
+      //System.out.print(" -> " + s.getName() + " at x: "
+      //    + s.getX() + ", Y: " + s.getY() + ", Z: " + s.getZ());
+      System.out.println();
     }
   }
 
