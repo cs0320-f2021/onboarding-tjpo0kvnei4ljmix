@@ -32,6 +32,7 @@ public class StarFinder {
     BufferedReader starReader;
     String line;
     try {
+      //Taken from here: https://www.baeldung.com/reading-file-in-java#file-with-buffered-reader
       starReader = new BufferedReader(new FileReader(path));
       line = starReader.readLine();
     } catch (Exception e) {
@@ -183,6 +184,7 @@ public class StarFinder {
     System.out.println("ERROR: Name did not match any known star");
     return new ArrayList<>();
   }
+
 
 
 
