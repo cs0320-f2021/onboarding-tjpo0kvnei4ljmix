@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
@@ -61,8 +63,60 @@ public final class Main {
       runSparkServer((int) options.valueOf("port"));
     }
 
-    MathBot mb = new MathBot(); //Create MathBot for adding and subtracting
-    StarFinder sf = new StarFinder();
+    ArrayList<Command> commands = new ArrayList<>(Arrays.asList(new Add()));
+    Command previousCommand = null;
+    boolean help = false;
+    //TODO: Sanity checks, make sure no commandName is duplicated, make sure isActive is false.
+
+    try {
+      BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+      String input;
+      while ((input = br.readLine()) != null) {
+        input = input.trim(); //Trim input, getting rid of extra spaces
+        String[] arguments = input.split(" ", 2); //Split into two pieces
+        String commandName = arguments[0].toLowerCase(); //REPL is case-insensitive
+        String commandArgs = arguments[1];
+
+        if (commandName.equals("quit")) {
+          //override everything else, if quit is entered deactivate the previous task.
+          previousCommand.deactivate();
+          System.out.println("---");
+          continue;
+        }
+
+        //If there is a currently active command, run that one.
+        if (previousCommand.isActive()) {
+          String output = previousCommand.run(commandArgs);
+          System.out.print(output);
+          continue;
+        }
+
+        if (arguments[0].equals("help")) {
+          help = true;
+          commandName = commandArgs; //In this case, the function we need to find is the argument
+        }
+
+        //Loop through all commands to see if one matches
+        for (Command c : commands) {
+          if (c.getNames().contains(arguments[0])) {
+            //This is the command we should run
+            if (help) {
+              //call the help command
+              System.out.println(c.help());
+              help = false;
+            } else {
+              //call the standard run method
+              String output = c.run(arguments[1]);
+              System.out.println(output);
+              previousCommand = c;
+            }
+          }
+        }
+      }
+    } catch (Exception e) {
+      System.out.println("ERROR: Unexpected REPL Input");
+    }
+
     try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
       String input;
       while ((input = br.readLine()) != null) {
@@ -115,40 +169,7 @@ public final class Main {
               sf.loadStars(arguments[1]);
               break; //end of stars case
             case "naive_neighbors":
-              if (input.split("\"").length > 1) {
-                //likely formatted as 'naive_neighbors <k> <"name">'
-                int k;
-                String name;
-                try {
-                  k = Integer.parseInt(arguments[1]);
-                  name = input.split("\"")[1];
-                } catch (Exception e) {
-                  System.out.println("ERROR: Unable to parse input. Make sure the star name "
-                      + "is in quotes, and that 'k' is a number.");
-                  break;
-                }
-                this.printStarResults(sf.namedKnn(k, name));
-              } else if (arguments.length == 5) {
-                int k;
-                double x, y, z;
-                //formatted as 'naive_neighbors <k> <x> <y> <z>'
-                try {
-                  k = Integer.parseInt(arguments[1]);
-                  x = Double.parseDouble(arguments[2]);
-                  y = Double.parseDouble(arguments[3]);
-                  z = Double.parseDouble(arguments[4]);
-                } catch (Exception e) {
-                  System.out.println("ERROR: Unable to parse input.");
-                  break;
-                }
-                this.printStarResults(sf.knn(k, x, y, z));
-              } else {
-                //formatted wrong
-                System.out.print("ERROR: Please follow one of the following formats:");
-                System.out.print(" 'naive_neighbors <k> <x> <y> <z>'");
-                System.out.println(" OR 'naive_neighbors <k> <\"name\">'");
-              }
-              break; //end of naive_neighbors case
+
             default:
               System.out.println("ERROR: Unrecognized Command");
               break; //end default case
@@ -178,20 +199,6 @@ public final class Main {
       System.exit(1);
     }
     return new FreeMarkerEngine(config);
-  }
-
-  private void printStarResults(ArrayList<Star> stars) {
-    if (stars.size() == 0) {
-      //This is the return when an error occurs in the knn function
-      //Stay silent, an error message has already been printed from knn
-      return;
-    }
-    for (Star s : stars) {
-      System.out.print(s.getId());
-      //System.out.print(" -> " + s.getName() + " at x: "
-      //    + s.getX() + ", Y: " + s.getY() + ", Z: " + s.getZ());
-      System.out.println();
-    }
   }
 
   private void runSparkServer(int port) {

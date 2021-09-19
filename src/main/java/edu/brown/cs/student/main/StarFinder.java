@@ -27,7 +27,7 @@ public class StarFinder {
    * @param path path to CSV file
    */
 
-  public void loadStars(String path) {
+  public String loadStars(String path) {
     this.invalid = false; //valid until proven otherwise by a CSV read error
     BufferedReader starReader;
     String line;
@@ -36,15 +36,13 @@ public class StarFinder {
       starReader = new BufferedReader(new FileReader(path));
       line = starReader.readLine();
     } catch (Exception e) {
-      System.out.println("ERROR: Could not find the file specified. Check for spelling errors.");
       this.invalid = true;
-      return;
+      return "ERROR: Could not find the file specified. Check for spelling errors.";
     }
     if (!(line.equals("StarID,ProperName,X,Y,Z"))) {
       //First line of the CSV is in the wrong format, notify the user and mark CSV as invalid.
-      System.out.println("ERROR: Invalid CSV, make sure the CSV formatting is correct.");
       this.invalid = true;
-      return;
+      return "ERROR: Invalid CSV, make sure the CSV formatting is correct.";
     }
     starData = new ArrayList<>();
     while (true) {
@@ -54,13 +52,12 @@ public class StarFinder {
           break;
         }
       } catch (IOException e) {
-        System.out.println("ERROR: There was an issue reading the file, check for corruption");
+        return "ERROR: There was an issue reading the file, check for corruption";
       }
       String[] rawStarData = line.split(",");
       if (rawStarData.length != 5) {
-        System.out.println("ERROR: The CSV has an incorrect number of fields and/or is broken!");
         this.invalid = true;
-        return;
+        return "ERROR: The CSV has an incorrect number of fields and/or is broken!";
       }
       //Convert id and x/y/z int
       int id;
@@ -71,14 +68,13 @@ public class StarFinder {
         y = Double.parseDouble(rawStarData[3]);
         z = Double.parseDouble(rawStarData[4]);
       } catch (Exception e) {
-        System.out.println("ERROR: Could not parse CSV - Check for corruption");
         this.invalid = true;
-        return;
+        return "ERROR: Could not parse CSV - Check for corruption";
       }
       String properName = rawStarData[1];
       starData.add(new Star(id, properName, x, y, z));
     }
-    System.out.println("Read " + this.starData.size() + " stars from " + path);
+    return "Read " + this.starData.size() + " stars from " + path;
     //System.out.println("The first star is named " + starData.get(0).getName());
   }
 
@@ -93,7 +89,6 @@ public class StarFinder {
    * If there is a tie, picks randomly between the stars that are tied.
    *
    */
-  @SuppressWarnings({"checkstyle:LocalFinalVariableName", "checkstyle:MagicNumber"})
   public ArrayList<Star> knn(int k, double x, double y, double z) {
     if (this.invalid) {
       System.out.println("ERROR: Star CSV has not been loaded or is invalid");
