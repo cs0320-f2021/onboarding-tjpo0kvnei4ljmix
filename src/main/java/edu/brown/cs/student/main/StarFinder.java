@@ -9,6 +9,15 @@ import java.util.Collections;
 public class StarFinder {
   private boolean invalid = true; //true until stars are loaded
   private ArrayList<Star> starData;
+  private static StarFinder instance = null;
+
+  //from: https://stackoverflow.com/questions/4419810/how-to-share-data-between-separate-classes-in-java
+  public static StarFinder getInstance() {
+    if (instance == null) {
+      instance = new StarFinder();
+    }
+    return instance;
+  }
 
   /**
    * Constructor for the StarFinder class.

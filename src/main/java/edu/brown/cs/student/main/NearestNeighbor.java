@@ -23,26 +23,26 @@ public class NearestNeighbor extends Command {
         return error("ERROR: Unable to parse input. Make sure the star name "
             + "is in quotes, and that 'k' is a number.");
       }
-      this.printStarResults(sf.namedKnn(k, name));
-    } else if (arguments.length == 5) {
+      return this.printStarResults(StarFinder.getInstance().namedKnn(k, name));
+    } else if (args.length == 4) {
+      //formatted as 'naive_neighbors <k> <x> <y> <z>'
       int k;
       double x, y, z;
-      //formatted as 'naive_neighbors <k> <x> <y> <z>'
       try {
-        k = Integer.parseInt(arguments[1]);
-        x = Double.parseDouble(arguments[2]);
-        y = Double.parseDouble(arguments[3]);
-        z = Double.parseDouble(arguments[4]);
+        k = Integer.parseInt(args[0]);
+        x = Double.parseDouble(args[1]);
+        y = Double.parseDouble(args[2]);
+        z = Double.parseDouble(args[3]);
       } catch (Exception e) {
-        System.out.println("ERROR: Unable to parse input.");
-        break;
+        return error("Unable to parse input.");
       }
-      this.printStarResults(sf.knn(k, x, y, z));
+      return this.printStarResults(StarFinder.getInstance().knn(k, x, y, z));
     } else {
       //formatted wrong
-      System.out.print("ERROR: Please follow one of the following formats:");
-      System.out.print(" 'naive_neighbors <k> <x> <y> <z>'");
-      System.out.println(" OR 'naive_neighbors <k> <\"name\">'");
+      String output = "ERROR: Please follow one of the following formats:";
+      output += " 'naive_neighbors <k> <x> <y> <z>'";
+      output += " OR 'naive_neighbors <k> <\"name\">'";
+      return output;
     }
   }
 
@@ -52,12 +52,14 @@ public class NearestNeighbor extends Command {
       //Stay silent, an error message has already been printed from knn
       return "";
     }
+    String output = "";
     for (Star s : stars) {
-      System.out.print(s.getId());
+      output += String.valueOf(s.getId());
+      output += "\n";
       //System.out.print(" -> " + s.getName() + " at x: "
-      //    + s.getX() + ", Y: " + s.getY() + ", Z: " + s.getZ());
-      System.out.println();
+      //    + s.getX() + ", Y: " + s.getY() + ", Z: " + s.getZ())
     }
+    return output;
   }
 
 }
