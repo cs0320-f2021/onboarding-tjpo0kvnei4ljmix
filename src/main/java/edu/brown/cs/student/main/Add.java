@@ -13,8 +13,8 @@ public class Add extends Command {
   public String run(String arg) {
     //Make sure there are only two numbers to add
     String[] args = arg.split(" ");
-    if (args.length > 2) { //Artificial restriction, this could be removed without issues.
-      return error("Too many arguments to add!");
+    if (args.length != 2) { //Artificial restriction, this could be removed without issues.
+      return error("Incorrect number of arguments!");
     }
     //Now, make sure that the other two arguments are actually numbers
     ArrayList<Double> nums = new ArrayList<>();

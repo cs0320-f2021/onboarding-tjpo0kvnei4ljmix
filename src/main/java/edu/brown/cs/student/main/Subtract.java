@@ -13,8 +13,8 @@ public class Subtract extends Command {
   public String run(String arg) {
     //Make sure there are only two numbers to add
     String[] args = arg.split(" ");
-    if (args.length > 2) { //Artificial restriction, this could be removed without issues.
-      return error("Too many arguments to subtract!");
+    if (args.length != 2) { //Artificial restriction, this could be removed without issues.
+      return error("Incorrect number of arguments");
     }
     //Now, make sure that the other two arguments are actually numbers
     ArrayList<Double> nums = new ArrayList<>();
@@ -28,8 +28,8 @@ public class Subtract extends Command {
         return error("Unable to convert \"" + s + "\" to a number");
       }
     }
-    double result = 0;
-    for (double n : nums) {
+    double result = nums.get(0);
+    for (double n : nums.subList(1,nums.size())) {
       result = result - n;
     }
     return String.valueOf(result);

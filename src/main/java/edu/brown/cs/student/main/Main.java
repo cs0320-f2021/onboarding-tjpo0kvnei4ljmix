@@ -122,7 +122,7 @@ public final class Main {
 
       //if the user types help, they're looking for documentation
       //switch up the arguments so that help is called
-      if (arguments[0].equals("help")) {
+      if (commandName.equals("help")) {
         help = true;
         commandName = commandArgs; //In this case, the function we need to find is the argument
       }
@@ -130,7 +130,7 @@ public final class Main {
       //Loop through all commands to see if one matches
       boolean found = false;
       for (Command c : commands) {
-        if (c.getNames().contains(arguments[0])) {
+        if (c.getNames().contains(commandName)) {
           //This is the command we should run
           found = true;
           if (help) {
@@ -139,8 +139,10 @@ public final class Main {
             help = false;
           } else {
             //call the standard run method
-            String output = c.run(arguments[1]);
-            System.out.println(output);
+            String output = c.run(commandArgs);
+            if (!(output.isEmpty())){
+              System.out.println(output);
+            }
             previousCommand = c;
           }
           break;

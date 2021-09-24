@@ -59,7 +59,7 @@ public class NearestNeighbor extends Command {
       //System.out.print(" -> " + s.getName() + " at x: "
       //    + s.getX() + ", Y: " + s.getY() + ", Z: " + s.getZ())
     }
-    return output;
+    return output.trim();
   }
 
 }
