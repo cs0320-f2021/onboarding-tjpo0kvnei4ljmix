@@ -87,7 +87,7 @@ public final class Main {
     String input;
     while (true) {
       try {
-        input = br.readLine();
+        input = br.readLine(); //get the next line of user input
         if (input == null) {
           break;
         }
@@ -120,6 +120,8 @@ public final class Main {
         continue;
       }
 
+      //if the user types help, they're looking for documentation
+      //switch up the arguments so that help is called
       if (arguments[0].equals("help")) {
         help = true;
         commandName = commandArgs; //In this case, the function we need to find is the argument

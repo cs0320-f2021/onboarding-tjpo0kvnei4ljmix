@@ -12,6 +12,7 @@ public class StarFinder {
   private static StarFinder instance = null;
 
   //from: https://stackoverflow.com/questions/4419810/how-to-share-data-between-separate-classes-in-java
+  //Basically, this lets both Star and NearestNeighbor share the same instance of this class
   public static StarFinder getInstance() {
     if (instance == null) {
       instance = new StarFinder();

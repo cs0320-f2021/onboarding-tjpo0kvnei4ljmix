@@ -6,7 +6,7 @@ import java.util.Set;
  * Abstract class which every REPL command must extend
  * the run method is called when the command is invoked
  * after command invocation, the isActive method is polled
- * if isActive, then subsequent user input will be routed to run.
+ * if isActive, then subsequent user input will be routed to run as well.
  * (Therefore, it may be useful to implement some state-machine-like logic)
  */
 
